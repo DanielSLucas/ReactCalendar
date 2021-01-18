@@ -99,7 +99,7 @@ const Calendar: React.FC<CalendarProps> = ({ events }) => {
     });
 
     return monthDays;
-  }, [selectedMonth])
+  }, [selectedMonth, events])
 
   return (
     <Container>
