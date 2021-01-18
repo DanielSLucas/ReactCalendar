@@ -1,38 +1,81 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-import moment from 'moment';
-import 'moment/locale/pt-br';
+import { add, sub, format, startOfMonth, startOfWeek, endOfWeek, getMonth, isToday } from 'date-fns';
+import pt from 'date-fns/locale/pt-BR'
 
 import './App.css';
 
-const App: React.FC = () => {
-  const [selectedMonth, setSelectedMonth] = useState(moment());
+import Day from './components/Day';
 
-  useEffect(() => {
-    setSelectedMonth(moment())
-  }, [])
+const App: React.FC = () => {
+  const [selectedMonth, setSelectedMonth] = useState(new Date());
 
   const handlePreviousClick  = useCallback(() => {
-    // const previousMonth = selectedMonth.subtract(1, 'month');
-    setSelectedMonth(state => state.subtract(1, "month"));
-  }, [])
+    const previousMonth = sub(selectedMonth, {months: 1});
+    setSelectedMonth(previousMonth);
+  }, [selectedMonth])
 
   const handleNextClick  = useCallback(() => {
-    // const nextMonth = selectedMonth.add(1, 'month');
-    setSelectedMonth(state => state.add(1, 'month'));
+    const nextMonth = add(selectedMonth, {months: 1});
+    setSelectedMonth(nextMonth);
+  }, [selectedMonth])
+
+  const handleTodayClick = useCallback(() => {
+    setSelectedMonth(new Date());
   }, [])
 
   const monthLabel = useMemo(() => {
-    const monthNYearString = selectedMonth.format('MMMM YYYY');
+    const monthNYearString = format(selectedMonth, 'MMMM yyyy', { locale: pt });
     
     const capitalized = monthNYearString[0].toUpperCase() + monthNYearString.substr(1);
     
     return capitalized;
   }, [selectedMonth])
 
-  const handleTodayClick = useCallback(() => {
-    setSelectedMonth(moment());
-  }, [])
+  const monthWeeksAndDays = useMemo(() => {
+    let weeks = [];
+    let finishedRenderingWeeks = false;
+    const startOfTheFirstWeekOfTheMonth = startOfWeek(startOfMonth(selectedMonth), { weekStartsOn: 1});
+    let currentRenderingWeek = startOfTheFirstWeekOfTheMonth;
+    let count = 0
+    let currentSelectedMonthIndex = getMonth(selectedMonth);
+
+    while (!finishedRenderingWeeks) {
+      weeks.push(currentRenderingWeek);
+
+      currentRenderingWeek = add(currentRenderingWeek, { weeks: 1});
+      finishedRenderingWeeks = count++ > 2 && currentSelectedMonthIndex !== getMonth(currentRenderingWeek);
+      currentSelectedMonthIndex = getMonth(currentRenderingWeek);
+    }
+
+    const monthDays = weeks.map(date => {
+      let days = [];
+      let currentRenderingDay = date;
+      const startOfTheWeek = date;
+      const startOfTheNextWeek = add(endOfWeek(startOfTheWeek), {days: 1});
+
+      while (currentRenderingDay>= startOfTheWeek && currentRenderingDay <= startOfTheNextWeek) {
+        let formatedDay = format(currentRenderingDay, 'd');
+        let isADayOfTheCurrentMonth = getMonth(currentRenderingDay) === getMonth(selectedMonth);
+        let isTheCurrentDay = isToday(currentRenderingDay);
+
+        const day = {
+          date: currentRenderingDay,
+          formatedDay,
+          isToday: isTheCurrentDay,
+          hasEvent: false,
+          isADayOfTheCurrentMonth,
+        }
+
+        days.push(day);
+        currentRenderingDay = add(currentRenderingDay, { days: 1});
+      }
+
+      return days
+    });
+
+    return monthDays;
+  }, [selectedMonth])
 
   return (
     <div className="container">
@@ -64,72 +107,30 @@ const App: React.FC = () => {
               <li>Ter</li>
               <li>Qua</li>
               <li>Qui</li>
-              <li className="currentWeekDay">Sex</li>
+              <li >Sex</li>
               <li>Sab</li>
               <li>Dom</li>
             </ul>
           </div>
 
           <div className="month-days">
-            <div className="week">
-              <ul>
-                <li className="not-a-current-month-day">28</li>
-                <li className="not-a-current-month-day">29</li>
-                <li className="not-a-current-month-day">30</li>
-                <li className="not-a-current-month-day">31</li>
-                <li>1</li>
-                <li>2</li>
-                <li>3</li>
-              </ul>
-            </div>
-
-            <div className="week">
-              <ul>
-                <li>4</li>
-                <li>5</li>
-                <li>6</li>
-                <li>7</li>
-                <li>8</li>
-                <li>9</li>
-                <li>10</li>
-              </ul>
-            </div>
-
-            <div className="week">
-              <ul>
-                <li>11</li>
-                <li>12</li>
-                <li>13</li>
-                <li>14</li>
-                <li className="currentDay">15</li>
-                <li>16</li>
-                <li>17</li>
-              </ul>
-            </div>
-
-            <div className="week">
-              <ul>
-                <li>18</li>
-                <li>19</li>
-                <li>20</li>
-                <li>21</li>
-                <li className="event">22</li>
-                <li className="event">23</li>
-                <li>24</li>
-              </ul>
-            </div>
-
-            <div className="week">
-              <ul>
-                <li>25</li>
-                <li>26</li>
-                <li>27</li>
-                <li>28</li>
-                <li>29</li>
-                <li className="event">30</li>
-                <li className="event">31</li>
-              </ul>
-            </div>
+            
+            {monthWeeksAndDays.map(week => {
+              return (
+                <div className="week">
+                  <ul>
+                    {week.map(day => (
+                      <Day 
+                        day={day.formatedDay}
+                        isToday={day.isToday} 
+                        hasEvent={day.hasEvent}
+                        isADayOfTheCurrentMonth={day.isADayOfTheCurrentMonth}
+                      />
+                    ))}
+                  </ul>
+                </div>
+              )
+            })}            
           </div>
         </div>
       </div>
