@@ -1,11 +1,12 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-import { add, sub, format, startOfMonth, startOfWeek, endOfWeek, getMonth, isToday } from 'date-fns';
+import { add, sub, format, startOfMonth, startOfWeek, endOfWeek, getMonth, getDate, isToday } from 'date-fns';
 import pt from 'date-fns/locale/pt-BR'
 
 import './App.css';
 
 import Day from './components/Day';
+import WeekDays from './components/WeekDays';
 
 const App: React.FC = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
@@ -33,9 +34,10 @@ const App: React.FC = () => {
   }, [selectedMonth])
 
   const monthWeeksAndDays = useMemo(() => {
+    const events = [new Date(1962, 6, 4), new Date(1970, 2, 5), new Date(1991, 10, 18), new Date(1998, 0, 14), new Date(2000, 2, 15), new Date(2000, 11, 23), new Date(2017, 8, 11)];
     let weeks = [];
     let finishedRenderingWeeks = false;
-    const startOfTheFirstWeekOfTheMonth = startOfWeek(startOfMonth(selectedMonth), { weekStartsOn: 1});
+    const startOfTheFirstWeekOfTheMonth = startOfWeek(startOfMonth(selectedMonth));
     let currentRenderingWeek = startOfTheFirstWeekOfTheMonth;
     let count = 0
     let currentSelectedMonthIndex = getMonth(selectedMonth);
@@ -52,18 +54,28 @@ const App: React.FC = () => {
       let days = [];
       let currentRenderingDay = date;
       const startOfTheWeek = date;
-      const startOfTheNextWeek = add(endOfWeek(startOfTheWeek), {days: 1});
+      const endOfTheWeek = endOfWeek(startOfTheWeek);
 
-      while (currentRenderingDay>= startOfTheWeek && currentRenderingDay <= startOfTheNextWeek) {
+      while (currentRenderingDay>= startOfTheWeek && currentRenderingDay <= endOfTheWeek) {
         let formatedDay = format(currentRenderingDay, 'd');
         let isADayOfTheCurrentMonth = getMonth(currentRenderingDay) === getMonth(selectedMonth);
         let isTheCurrentDay = isToday(currentRenderingDay);
+        let hasEvent = false;
+
+        for (let i = 0; i < events.length; i++) {
+          const isSameDay = getDate(events[i]) === getDate(currentRenderingDay);
+          const isSameMonth = getMonth(events[i]) === getMonth(currentRenderingDay);
+
+          if (isSameDay && isSameMonth) {
+            hasEvent = true
+          }
+        }
 
         const day = {
           date: currentRenderingDay,
           formatedDay,
           isToday: isTheCurrentDay,
-          hasEvent: false,
+          hasEvent,
           isADayOfTheCurrentMonth,
         }
 
@@ -102,25 +114,18 @@ const App: React.FC = () => {
           </header>
 
           <div className="weekdays">
-            <ul>
-              <li>Seg</li>
-              <li>Ter</li>
-              <li>Qua</li>
-              <li>Qui</li>
-              <li >Sex</li>
-              <li>Sab</li>
-              <li>Dom</li>
-            </ul>
+            <WeekDays selectedMonth={selectedMonth}/>
           </div>
 
           <div className="month-days">
             
-            {monthWeeksAndDays.map(week => {
+            {monthWeeksAndDays.map((week, index) => {
               return (
-                <div className="week">
+                <div key={index} className="week">
                   <ul>
                     {week.map(day => (
                       <Day 
+                        key={day.date.toString()}
                         day={day.formatedDay}
                         isToday={day.isToday} 
                         hasEvent={day.hasEvent}
