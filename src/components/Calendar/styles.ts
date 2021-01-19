@@ -3,7 +3,8 @@ import styled from 'styled-components';
 export const Container = styled.div`
   width: 20rem;
   height: 22rem;
-  background: #fafafc;
+  background: ${props => props.theme.backgroundColor};
+  
   border-radius: 0.5rem;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 `;
@@ -11,7 +12,7 @@ export const Container = styled.div`
 export const Header = styled.header`
   width: 100%;
   height: 3rem;
-  background: #FE75AD;
+  background: ${props => props.theme.primaryColor};
   
   display: flex;
   display: row;
@@ -31,7 +32,7 @@ export const HeaderContent = styled.div`
   justify-content: center;
   align-items: center;
   
-  color: #FFF;
+  color: ${props => props.theme.headerFontColor};
   font-size: 1.5rem;
 `;
 
@@ -46,14 +47,14 @@ export const TodayButton = styled.button`
   width: 20%;
   border: none;
   background: transparent;
-  color: #FFF;
+  color: ${props => props.theme.headerFontColor};
   font-size: 1rem;
   margin-right: 1rem;
   transition: background-color 0.2s;
 
   &:hover {
-    background: #fafafc;
-    color: #FE75AD;
+    background: ${props => props.theme.backgroundColor};
+    color: ${props => props.theme.primaryColor};
   }
 `;
 
@@ -63,20 +64,20 @@ export const PreviousButton = styled.button`
   border: none;
   border-top-left-radius: 0.5rem;
   background: transparent;
-  color: #FFF;
+  color: ${props => props.theme.headerFontColor};
   transition: background-color 0.2s;
 
   svg {
-    color: #FFF;
+    color: ${props => props.theme.headerFontColor};
     transition: color 0.2s;
   }
 
   &:hover {
-    background: #fafafc;
-    color: #FE75AD;
+    background: ${props => props.theme.backgroundColor};
+    color: ${props => props.theme.primaryColor};
 
     svg {
-      color: #FE75AD;
+      color: ${props => props.theme.primaryColor};
     }
   }
 `;
@@ -87,20 +88,20 @@ export const NextButton = styled.button`
   border: none;
   border-top-right-radius: 0.5rem;
   background: transparent;
-  color: #FFF;
+  color: ${props => props.theme.headerFontColor};
   transition: background-color 0.2s;
 
   svg {
-    color: #FFF;
+    color: ${props => props.theme.headerFontColor};
     transition: color 0.2s;
   }
 
   &:hover {
-    background: #fafafc;
-    color: #FE75AD;
+    background: ${props => props.theme.backgroundColor};
+    color: ${props => props.theme.primaryColor};
 
     svg {
-      color: #FE75AD;
+      color: ${props => props.theme.primaryColor};
     }
   }
 `;

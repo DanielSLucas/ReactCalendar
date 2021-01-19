@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
+import { ThemeProvider } from 'styled-components'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { add, sub, format, startOfMonth, startOfWeek, endOfWeek, getMonth, getDate, isToday } from 'date-fns';
 import pt from 'date-fns/locale/pt-BR'
@@ -13,15 +14,26 @@ import {
   NextButton,
   WeekContainer,  
 } from './styles';
+import defaultTheme from '../../styles/themes/DefaultTheme';
 
 import Day from './Day';
 import WeekDays from './WeekDays';
 
 interface CalendarProps {
-  events: Date[];
+  events?: Date[];
+  theme?: {
+    backgroundColor: string;
+    primaryColor: string;
+    headerFontColor: string;
+    primaryFontColor: string;
+    secondaryFontColor: string;
+  }
 }
 
-const Calendar: React.FC<CalendarProps> = ({ events }) => {
+const Calendar: React.FC<CalendarProps> = ({ 
+  events, 
+  theme = defaultTheme
+}) => {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
 
   const handlePreviousClick  = useCallback(() => {
@@ -74,12 +86,14 @@ const Calendar: React.FC<CalendarProps> = ({ events }) => {
         let isTheCurrentDay = isToday(currentRenderingDay);
         let hasEvent = false;
 
-        for (let i = 0; i < events.length; i++) {
-          const isSameDay = getDate(events[i]) === getDate(currentRenderingDay);
-          const isSameMonth = getMonth(events[i]) === getMonth(currentRenderingDay);
-
-          if (isSameDay && isSameMonth) {
-            hasEvent = true
+        if (events) {
+          for (let i = 0; i < events.length; i++) {
+            const isSameDay = getDate(events[i]) === getDate(currentRenderingDay);
+            const isSameMonth = getMonth(events[i]) === getMonth(currentRenderingDay);
+  
+            if (isSameDay && isSameMonth) {
+              hasEvent = true
+            }
           }
         }
 
@@ -102,49 +116,51 @@ const Calendar: React.FC<CalendarProps> = ({ events }) => {
   }, [selectedMonth, events])
 
   return (
-    <Container>
-      <Header>
-        <PreviousButton onClick={handlePreviousClick} type="button">
-          <FiChevronLeft size={24} />
-        </PreviousButton>
+    <ThemeProvider theme={theme}>
+      <Container>
+        <Header>
+          <PreviousButton onClick={handlePreviousClick} type="button">
+            <FiChevronLeft size={24} />
+          </PreviousButton>
 
-        <HeaderContent >
-          <TodayButton onClick={handleTodayClick} type="button">
-            Hoje
-          </TodayButton>
+          <HeaderContent >
+            <TodayButton onClick={handleTodayClick} type="button">
+              Hoje
+            </TodayButton>
 
-          <MonthYearLabel>
-            {monthLabel}
-          </MonthYearLabel>
-        </HeaderContent>
+            <MonthYearLabel>
+              {monthLabel}
+            </MonthYearLabel>
+          </HeaderContent>
 
-        <NextButton onClick={handleNextClick} type="button">
-          <FiChevronRight size={24} />
-        </NextButton>
-      </Header>
+          <NextButton onClick={handleNextClick} type="button">
+            <FiChevronRight size={24} />
+          </NextButton>
+        </Header>
 
-      <div className="weekdays">
-        <WeekDays selectedMonth={selectedMonth}/>
-      </div>
+        <div className="weekdays">
+          <WeekDays selectedMonth={selectedMonth}/>
+        </div>
 
-      <div className="month-days">
-        {monthWeeksAndDays.map((week, index) => {
-          return (            
-            <WeekContainer key={index}>
-              {week.map(day => (
-                <Day 
-                  key={day.date.toString()}
-                  day={day.formatedDay}
-                  isToday={day.isToday} 
-                  hasEvent={day.hasEvent}
-                  isADayOfTheCurrentMonth={day.isADayOfTheCurrentMonth}
-                />
-              ))}
-            </WeekContainer>            
-          )
-        })}            
-      </div>
-    </Container>
+        <div className="month-days">
+          {monthWeeksAndDays.map((week, index) => {
+            return (            
+              <WeekContainer key={index}>
+                {week.map(day => (
+                  <Day 
+                    key={day.date.toString()}
+                    day={day.formatedDay}
+                    isToday={day.isToday} 
+                    hasEvent={day.hasEvent}
+                    isADayOfTheCurrentMonth={day.isADayOfTheCurrentMonth}
+                  />
+                ))}
+              </WeekContainer>            
+            )
+          })}            
+        </div>
+      </Container>
+    </ThemeProvider>
   );
 }
 

@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components';
+import { lighten } from 'polished';
 
 interface ContainerProps {
   isToday: boolean;
@@ -6,9 +7,10 @@ interface ContainerProps {
   isADayOfTheCurrentMonth: boolean;
 }
 
-export const Container = styled.div<ContainerProps>`
+export const Container = styled.li<ContainerProps>`
   width: 2.5rem;
   height: 2.5rem;
+  color: ${props => props.theme.primaryFontColor};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -17,16 +19,15 @@ export const Container = styled.div<ContainerProps>`
   ${(props) => 
     props.isToday && 
     css`
-      color: #CF0563;
+      color: ${props => props.theme.secondaryFontColor};
       font-weight: bold;
-      border-radius: 50%;
     `
   }
 
   ${(props) => 
     props.hasEvent && 
     css`
-      background-color: #FBD2E5;
+      background-color: ${props => lighten(0.2, props.theme.primaryColor)};
       border-radius: 0.5rem;
     `
   }

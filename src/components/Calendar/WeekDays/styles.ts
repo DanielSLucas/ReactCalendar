@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components';
+import { opacify } from 'polished';
 
 interface ListItemProps {
   isCurrentWeekDay?: boolean;
@@ -10,9 +11,8 @@ export const Container = styled.div`
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  color: #CF0563;
-  background: #FE75AD;
-  opacity: 0.7;
+  color: ${props => props.theme.secondaryFontColor};
+  background: ${props => opacify(-0.3, props.theme.primaryColor)};
   margin-bottom: 0.5rem;
 `;
 
@@ -35,8 +35,7 @@ export const ListItem = styled.li<ListItemProps>`
   ${(props) => 
     props.isCurrentWeekDay && 
     css`
-      color: #FFF;
-      background-color: #FE75AD;
+      color: ${props => props.theme.headerFontColor};
     `
   }
 `;
